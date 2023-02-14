@@ -17,6 +17,7 @@ export const Note = ({
   onMouseUp,
   onChangeTitle,
   onChangeBody,
+  handleResize,
 }: {
   id: string;
   title: string;
@@ -31,6 +32,10 @@ export const Note = ({
   onMouseUp: (e: React.MouseEvent<HTMLDivElement>) => {};
   onChangeTitle: (e: React.FormEvent<HTMLSpanElement>, id: string) => void;
   onChangeBody: (e: React.FormEvent<HTMLSpanElement>, id: string) => void;
+  handleResize: (
+    e: React.MouseEvent<HTMLButtonElement>,
+    id: string | null
+  ) => void;
 }) => {
   const titleRef = useRef<HTMLSpanElement>(null);
   const bodyRef = useRef<HTMLSpanElement>(null);
@@ -82,8 +87,12 @@ export const Note = ({
       </div>
       <button
         className="note_resize-btn"
-        onMouseUp={handleStopPropagation}
-        onMouseDown={handleStopPropagation}
+        onMouseUp={(e) => {
+          handleResize(e, null);
+        }}
+        onMouseDown={(e) => {
+          handleResize(e, id);
+        }}
       >
         <FontAwesomeIcon icon={faUpDown} />
       </button>

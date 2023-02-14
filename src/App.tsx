@@ -36,6 +36,7 @@ const CONTAINER_MARGIN = 20;
 const App = () => {
   const [notes, setNotes] = useState<INotes[]>([]);
   const [activeID, setActiveID] = useState<string | null>(null);
+  const [activeResizeID, setResizeActiveID] = useState<string | null>(null);
   const zIndex = useRef<number>(0);
   const deleteID = useRef<string>(null);
   const containerRed = useRef<HTMLDivElement>(null);
@@ -113,11 +114,23 @@ const App = () => {
   const onMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     if (activeID === null) return;
     const index = notes.findIndex((n) => n.id === activeID);
-    const newPosition = {
-      top: event.clientY - notes[index].initialTop + notes[index].lastTop,
-      left: event.clientX - notes[index].initialLeft + notes[index].lastLeft,
-    };
-    notes[index].position = newPosition;
+    if (activeResizeID !== null) {
+      const newSize = {
+        height:
+          event.clientY - notes[index].initialTop + notes[index].size.width,
+        width:
+          event.clientX - notes[index].initialLeft + notes[index].size.height,
+      };
+      console.log(newSize);
+      notes[index].size = newSize;
+    } else {
+      const newPosition = {
+        top: event.clientY - notes[index].initialTop + notes[index].lastTop,
+        left: event.clientX - notes[index].initialLeft + notes[index].lastLeft,
+      };
+      notes[index].position = newPosition;
+    }
+
     if (hasConcatWithTrash(notes[index])) {
       trashRef.current.style.border = "3px dashed #F2A71B";
       deleteID.current = activeID;
@@ -155,9 +168,18 @@ const App = () => {
         setNotes([...notes]);
       }
       setActiveID(null);
+      setResizeActiveID(null);
     },
+
     [notes]
   );
+
+  const onResize = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    id: string | null
+  ) => {
+    setResizeActiveID(id);
+  };
 
   const onChangeTitle = useCallback(
     (event: React.FormEvent<HTMLSpanElement>, id: string) => {
@@ -203,6 +225,7 @@ const App = () => {
             onMouseUp={(e) => onMouseUp(e)}
             onChangeTitle={(e) => onChangeTitle(e, n.id)}
             onChangeBody={(e) => onChangeBody(e, n.id)}
+            handleResize={(e) => onResize(e, n.id)}
           />
         ))}
       </div>
