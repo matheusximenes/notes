@@ -95,43 +95,36 @@ body {
       cursor: grab;
       border-radius: .25rem;
       box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-      outline: 2px solid;
+      outline: 1px solid;
       outline-offset: 2px;
       overflow-y: auto;
       
       &:hover{
+        outline: 2px solid;
+        outline-offset: 2px;
         box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
       }
 
       &__title {
-        padding: .5rem;
-        
-        input {
-          box-sizing: border-box;
-          width: 100%;
+        span {
+          display: block;
+          padding: .5rem;
           font-size: 1.2rem;
           font-weight: 700;
-          background-color: transparent;
-          border: 0;
-          padding: .5rem;
         }
+        
+       
       }
 
       &__body {
-        
-        padding: 0 .5rem;
-        border: 1px solid red;
-        
-        
-        textarea {
+        span {
+          display: block;
+          padding: 0 .5rem;
           font-size: 1rem;
           font-weight: 500;
-          background-color: transparent;
-          border: 0;
-          width: 100%;
-          resize: none;
-          padding: .5rem;
         }
+        
+        
       }
 
       &_resize-btn {

@@ -32,13 +32,16 @@ export const Note = ({
   onChangeTitle: (e: React.FormEvent<HTMLSpanElement>, id: string) => void;
   onChangeBody: (e: React.FormEvent<HTMLSpanElement>, id: string) => void;
 }) => {
-  const titleRef = useRef(title);
+  const titleRef = useRef<HTMLSpanElement>(null);
+  const bodyRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    titleRef.current.innerText = title;
+    bodyRef.current.innerText = body;
+  }, [title, body]);
+
   const handleStopPropagation = (e: React.MouseEvent<HTMLSpanElement>) =>
     e.stopPropagation();
-
-  // useEffect(() => {
-  //   onChangeBody(titleRef.current.innerText, id);
-  // }, [titleRef.current]);
 
   return (
     <div
@@ -57,16 +60,14 @@ export const Note = ({
     >
       <div className="note__title">
         <span
-          ref={titleRef}
-          aria-label="title"
-          role="textbox"
           onMouseUp={handleStopPropagation}
           onMouseDown={handleStopPropagation}
-          // onKeyDown={(e) => (titleRef.current += e.value)}
+          aria-label="title"
+          role="textbox"
+          onBlur={(e) => onChangeTitle(e, id)}
           contentEditable={true}
-        >
-          {title}
-        </span>
+          ref={titleRef}
+        />
       </div>
       <div className="note__body">
         <span
@@ -74,13 +75,16 @@ export const Note = ({
           role="textbox"
           onMouseUp={handleStopPropagation}
           onMouseDown={handleStopPropagation}
-          onChange={(e) => onChangeBody(e, id)}
+          onBlur={(e) => onChangeBody(e, id)}
           contentEditable={true}
-        >
-          {body}
-        </span>
+          ref={bodyRef}
+        />
       </div>
-      <button className="note_resize-btn">
+      <button
+        className="note_resize-btn"
+        onMouseUp={handleStopPropagation}
+        onMouseDown={handleStopPropagation}
+      >
         <FontAwesomeIcon icon={faUpDown} />
       </button>
     </div>

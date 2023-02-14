@@ -163,7 +163,7 @@ const App = () => {
     (event: React.FormEvent<HTMLSpanElement>, id: string) => {
       event.stopPropagation();
       const index = notes.findIndex((n) => n.id === id);
-      notes[index].title = event.currentTarget.textContent || "";
+      notes[index].title = event.currentTarget.innerText || "";
       setNotes([...notes]);
     },
     [notes]
@@ -173,7 +173,7 @@ const App = () => {
     (event: React.FormEvent<HTMLSpanElement>, id: string) => {
       event.stopPropagation();
       const index = notes.findIndex((n) => n.id === id);
-      notes[index].body = event.currentTarget.textContent || "";
+      notes[index].body = event.currentTarget.innerText || "";
       setNotes([...notes]);
     },
     [notes]
