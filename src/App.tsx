@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, memo } from "react";
 import { Note } from "./components/Note";
 import uuid from "react-uuid";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -52,6 +52,8 @@ const App = () => {
 
   useEffect(() => {
     saveLocalStorageNotes();
+    const idx = notes.findIndex((n) => n.id === activeID);
+    // console.log(activeID, notes[idx]?.position);
   }, [notes]);
 
   const saveLocalStorageNotes = () => {
@@ -108,12 +110,12 @@ const App = () => {
     );
   };
 
-  const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const onMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     if (activeID === null) return;
     const index = notes.findIndex((n) => n.id === activeID);
     const newPosition = {
-      top: e.clientY - notes[index].initialTop + notes[index].lastTop,
-      left: e.clientX - notes[index].initialLeft + notes[index].lastLeft,
+      top: event.clientY - notes[index].initialTop + notes[index].lastTop,
+      left: event.clientX - notes[index].initialLeft + notes[index].lastLeft,
     };
     notes[index].position = newPosition;
     if (hasConcatWithTrash(notes[index])) {
@@ -126,49 +128,56 @@ const App = () => {
     }
   };
 
-  const onMouseDown = (e: React.MouseEvent<HTMLDivElement>, id: string) => {
-    zIndex.current++;
-    const index = notes.findIndex((n) => n.id === id);
-    notes[index].initialTop = e.clientY;
-    notes[index].initialLeft = e.clientX;
-    notes[index].zIndex = zIndex.current;
-    setNotes([...notes]);
-    setActiveID(id);
-  };
-
-  const onMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (deleteID.current !== null) {
-      const filteredNotes = notes.filter((n) => n.id !== deleteID.current);
-      console.log(filteredNotes);
-      setNotes(filteredNotes);
-    } else {
-      const index = notes.findIndex((n) => n.id === activeID);
-      notes[index].lastTop = e.target.offsetTop;
-      notes[index].lastLeft = e.target.offsetLeft;
+  const onMouseDown = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>, id: string) => {
+      event.stopPropagation();
+      zIndex.current++;
+      const index = notes.findIndex((n) => n.id === id);
+      notes[index].initialTop = event.clientY;
+      notes[index].initialLeft = event.clientX;
+      notes[index].zIndex = zIndex.current;
       setNotes([...notes]);
-    }
-    setActiveID(null);
-  };
+      setActiveID(id);
+    },
+    [notes]
+  );
 
-  const onChangeTitle = (
-    event: React.FormEvent<HTMLInputElement>,
-    id: string
-  ) => {
-    event.stopPropagation();
-    const index = notes.findIndex((n) => n.id === id);
-    notes[index].title = event.currentTarget.value;
-    setNotes([...notes]);
-  };
+  const onMouseUp = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      event.stopPropagation();
+      if (deleteID.current !== null) {
+        const filteredNotes = notes.filter((n) => n.id !== deleteID.current);
+        setNotes(filteredNotes);
+      } else {
+        const index = notes.findIndex((n) => n.id === activeID);
+        notes[index].lastTop = event.target.offsetTop;
+        notes[index].lastLeft = event.target.offsetLeft;
+        setNotes([...notes]);
+      }
+      setActiveID(null);
+    },
+    [notes]
+  );
 
-  const onChangeBody = (
-    event: React.FormEvent<HTMLTextAreaElement>,
-    id: string
-  ) => {
-    event.stopPropagation();
-    const index = notes.findIndex((n) => n.id === id);
-    notes[index].body = event.currentTarget.value;
-    setNotes([...notes]);
-  };
+  const onChangeTitle = useCallback(
+    (event: React.FormEvent<HTMLSpanElement>, id: string) => {
+      event.stopPropagation();
+      const index = notes.findIndex((n) => n.id === id);
+      notes[index].title = event.currentTarget.textContent || "";
+      setNotes([...notes]);
+    },
+    [notes]
+  );
+
+  const onChangeBody = useCallback(
+    (event: React.FormEvent<HTMLSpanElement>, id: string) => {
+      event.stopPropagation();
+      const index = notes.findIndex((n) => n.id === id);
+      notes[index].body = event.currentTarget.textContent || "";
+      setNotes([...notes]);
+    },
+    [notes]
+  );
 
   return (
     <main className="container">
@@ -181,23 +190,17 @@ const App = () => {
         {notes.map((n) => (
           <Note
             key={n.id}
-            note={{
-              id: n.id,
-              title: n.title,
-              body: n.body,
-              bgColor: n.bgColor,
-              position: {
-                top: n.position.top,
-                left: n.position.left,
-              },
-              size: {
-                width: n.size.width,
-                height: n.size.height,
-              },
-              zIndex: n.zIndex,
-            }}
+            id={n.id}
+            title={n.title}
+            body={n.body}
+            bgColor={n.bgColor}
+            positionTop={n.position.top}
+            sizeWidth={n.size.width}
+            sizeHeight={n.size.height}
+            positionLeft={n.position.left}
+            zIndex={n.zIndex}
             onMouseDown={(e) => onMouseDown(e, n.id)}
-            onMouseUp={onMouseUp}
+            onMouseUp={(e) => onMouseUp(e)}
             onChangeTitle={(e) => onChangeTitle(e, n.id)}
             onChangeBody={(e) => onChangeBody(e, n.id)}
           />

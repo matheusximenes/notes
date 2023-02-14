@@ -97,7 +97,8 @@ body {
       box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
       outline: 2px solid;
       outline-offset: 2px;
-
+      overflow-y: auto;
+      
       &:hover{
         box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
       }
@@ -121,9 +122,10 @@ body {
         padding: 0 .5rem;
         border: 1px solid red;
         
+        
         textarea {
           font-size: 1rem;
-          font-weight: 700;
+          font-weight: 500;
           background-color: transparent;
           border: 0;
           width: 100%;
